@@ -1,101 +1,120 @@
-# EDA & RFM Clustering (Notebook 1)
+# การวิเคราะห์ข้อมูลและ RFM Clustering (Notebook 1)
 
-## Overview
+## ภาพรวม
 
-Notebook 1 performs exploratory data analysis and applies RFM (Recency, Frequency, Monetary) framework combined with K-Means clustering to segment customers into behavioral archetypes. These segments inform the retention strategies in Notebooks 3 and 4.
+Notebook 1 ทำการวิเคราะห์เชิงสำรวจ (EDA) และใช้กรอบ RFM ร่วมกับ K-Means Clustering เพื่อแบ่งกลุ่มลูกค้าออกเป็น Segment ตามพฤติกรรม ผลลัพธ์ใช้เป็นพื้นฐานสำหรับกลยุทธ์การรักษาลูกค้าใน Notebook 3 และ 4
 
 ## RFM Dashboard
 
 ![RFM Dashboard](images/rfm_dashboard.png)
 
-The dashboard shows cluster distributions across all three RFM dimensions, churn rates per cluster, and the business labels assigned to each group.
+Dashboard แสดงการกระจายตัวของกลุ่มลูกค้าในทุกมิติ RFM, อัตรา Churn ต่อกลุ่ม และ Label ที่กำหนดให้แต่ละกลุ่ม
 
-## RFM Framework Definition
+## กรอบ RFM ที่ใช้
 
-| Dimension | Column | Business Meaning |
+| มิติ | คอลัมน์ | ความหมายทางธุรกิจ |
 |---|---|---|
-| **R** (Recency) | `DaySinceLastOrder` | How recently did the customer order? Lower = more recent = better |
-| **F** (Frequency) | `OrderCount` | How often does the customer order? Higher = more engaged |
-| **M** (Monetary) | `CashbackAmount` | How much value does the customer generate? Higher = more valuable |
+| **R** (Recency — ความใหม่) | `DaySinceLastOrder` | สั่งซื้อนานแค่ไหนแล้ว? น้อย = ล่าสุด = ดี |
+| **F** (Frequency — ความถี่) | `OrderCount` | สั่งซื้อบ่อยแค่ไหน? มาก = ใช้งานบ่อย |
+| **M** (Monetary — มูลค่า) | `CashbackAmount` | สร้างมูลค่าเท่าไหร่? สูง = ลูกค้ามีคุณค่า |
 
-> Note: `CashbackAmount` was used as the Monetary proxy because it correlates with order value and is directly available in the dataset.
+> หมายเหตุ: ใช้ `CashbackAmount` แทน Revenue โดยตรง เพราะสัมพันธ์กับมูลค่าการสั่งซื้อและมีอยู่ใน Dataset
+
+## Feature ที่ใช้ใน Clustering
+
+K-Means ใช้ **7 Feature** (ไม่ใช่แค่ RFM 3 ตัว):
+
+```python
+cluster_features = [
+    'DaySinceLastOrder',  # R
+    'OrderCount',          # F
+    'CashbackAmount',      # M
+    'Tenure',              # ระยะเวลาเป็นลูกค้า
+    'CouponUsed',          # การใช้คูปอง
+    'Complain',            # ประวัติการร้องเรียน
+    'SatisfactionScore',   # คะแนนความพึงพอใจ
+]
+```
 
 ## K-Means Clustering
 
-### Optimal K Selection
-The Elbow Method was applied on inertia (within-cluster sum of squares) for k=2 to k=10. The elbow at **k=4** was identified as the optimal number of clusters, balancing granularity with interpretability.
+### การเลือก K ที่เหมาะสม
+
+ใช้ **Elbow Method** โดยวัด Inertia (Within-Cluster Sum of Squares) สำหรับ k=2 ถึง k=10 พบ "ข้อศอก" ที่ **k=4** ซึ่งสมดุลระหว่างความละเอียดและความสามารถในการตีความ
 
 ```python
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
-rfm_features = ['DaySinceLastOrder', 'OrderCount', 'CashbackAmount']
 scaler = StandardScaler()
-X_rfm = scaler.fit_transform(df[rfm_features])
+X_cluster = scaler.fit_transform(df[cluster_features])
 
 kmeans = KMeans(n_clusters=4, random_state=42, n_init=10)
-df['RFM_Cluster'] = kmeans.fit_predict(X_rfm)
+df['RFM_Cluster'] = kmeans.fit_predict(X_cluster)
 ```
 
-### Cluster Profiles
+### โปรไฟล์ของแต่ละกลุ่ม
 
-| Cluster | Business Label | Recency | Frequency | Monetary | Churn Rate | Size |
-|---|---|---|---|---|---|---|
-| 0 | Champions | Low (recent) | High | High | ~8% | ~25% |
-| 1 | At-Risk | High (lapsed) | Low | Medium | ~28% | ~22% |
-| 2 | Loyal Customers | Low (recent) | Medium | Medium | ~12% | ~30% |
-| 3 | New/Low-Value | Medium | Low | Low | ~20% | ~23% |
+| กลุ่ม | Label ธุรกิจ | Recency | Frequency | Monetary | อัตรา Churn |
+|---|---|---|---|---|---|
+| 0 | Champions (แชมเปี้ยน) | ต่ำ (สั่งล่าสุด) | สูง | สูง | ~8% |
+| 1 | At-Risk (เสี่ยง) | สูง (ไม่ได้สั่งนาน) | ต่ำ | ปานกลาง | ~28% |
+| 2 | Loyal Customers (ซื่อสัตย์) | ต่ำ | ปานกลาง | ปานกลาง | ~12% |
+| 3 | New/Low-Value (ใหม่/ต่ำ) | ปานกลาง | ต่ำ | ต่ำ | ~20% |
 
-> Exact percentages vary by run; representative values shown above.
+## การทดสอบทางสถิติ
 
-### Cluster Naming Logic
+### Mann-Whitney U Test (สำหรับตัวแปรตัวเลข)
+- **12 Feature ตัวเลข** มีความแตกต่างอย่างมีนัยสำคัญ (p < 0.05) ระหว่าง Churn กับ Non-Churn
 
-- **Champions**: Best recency + highest frequency + highest cashback → lowest churn
-- **At-Risk**: Longest days since last order → highest churn probability
-- **Loyal Customers**: Consistent ordering, moderate value → stable retention
-- **New/Low-Value**: Short tenure, low spend → moderate churn from natural attrition
+### Chi-Square Test (สำหรับตัวแปรหมวดหมู่)
+- **5 Feature หมวดหมู่** มีความสัมพันธ์อย่างมีนัยสำคัญกับ Churn (p < 0.05)
 
-## Key EDA Findings
+## ข้อค้นพบสำคัญจาก EDA
 
-### 1. Tenure vs Churn
-- Customers with **Tenure < 3 months**: ~35% churn rate
-- Customers with **Tenure ≥ 12 months**: ~5% churn rate
-- **Insight**: Early engagement programs in the first 3 months dramatically reduce lifetime churn.
+### 1. Tenure คือตัวทำนายที่แข็งแกร่งที่สุด
 
-### 2. Complaint Impact
-- Customers who filed a complaint (`Complain=1`): **~40% churn rate**
-- Non-complainers: **~14% churn rate**
-- **Insight**: Complaint resolution speed is critical. Complaints are the strongest binary churn signal.
+| ช่วง Tenure | อัตรา Churn |
+|---|---|
+| 0–3 เดือน | ~59.3% (สูงมาก) |
+| 4–12 เดือน | ~22% |
+| 12+ เดือน | ~5% |
 
-### 3. Cashback Distribution
-- Bimodal distribution with a clear break at ~163 Baht (median)
-- High-cashback customers have significantly lower churn rates when retained
-- **Insight**: Cashback as Monetary proxy effectively separates high-value from low-value segments
+**ข้อสรุป**: โปรแกรม Onboarding ใน 3 เดือนแรกมีผลโดยตรงต่ออัตรา Churn ตลอดชีวิตลูกค้า
 
-### 4. Satisfaction Score Paradox
-- Score 1–2 (dissatisfied): ~28% churn
-- Score 4–5 (satisfied): ~12% churn
-- Some Score-5 customers still churn → suggests competitors offer better deals despite satisfaction
+### 2. Complaint คือสัญญาณ Binary ที่ชัดเจนที่สุด
 
-### 5. City Tier Pattern
-- Tier 1 cities: Higher churn (more competition, more alternatives)
-- Tier 3 cities: Lower churn (fewer alternatives, higher loyalty)
+| กลุ่ม | อัตรา Churn |
+|---|---|
+| ร้องเรียน (`Complain=1`) | **40.5%** |
+| ไม่ร้องเรียน (`Complain=0`) | **13.4%** |
 
-## Feature Correlation Highlights
+**ข้อสรุป**: ความเร็วในการแก้ปัญหาการร้องเรียนส่งผลต่ออัตรา Churn โดยตรง
 
-Top correlated features with `Churn`:
+### 3. ความสัมพันธ์ระหว่าง Value และ Complaint
 
-| Feature | Correlation Direction | Strength |
-|---|---|---|
-| Tenure | Negative (longer tenure → less churn) | Strong |
-| Complain | Positive (complaint → more churn) | Strong |
-| DaySinceLastOrder | Positive (longer gap → more churn) | Moderate |
-| SatisfactionScore | Negative (higher score → less churn) | Moderate |
-| NumberOfAddress | Positive (more addresses → slightly more churn) | Weak |
+| กลุ่ม | อัตรา Churn |
+|---|---|
+| High Value + ไม่ร้องเรียน | **5.8%** |
+| High Value + ร้องเรียน | **100%** |
+| Low Value + ไม่ร้องเรียน | **13.8%** |
+| Low Value + ร้องเรียน | **54.5%** |
 
-## Output of Notebook 1
+### 4. CashbackAmount — การกระจายแบบ 2 ยอด (Bimodal)
 
-- Feature-engineered DataFrame with `RFM_Cluster` column
-- RFM dashboard visualization saved to `rfm_dashboard.png`
-- Cleaned dataset with median-imputed missing values
-- These cleaned features feed directly into Notebook 2 for model training
+มีเส้นแบ่งชัดเจนที่ประมาณ **163 บาท** (Median) ซึ่งใช้เป็น Threshold ในการแบ่งกลุ่ม High/Low Value ใน Notebook 3
+
+### 5. ความย้อนแย้งของ SatisfactionScore
+
+ลูกค้าที่ให้คะแนนความพึงพอใจสูง บางส่วนก็ยัง Churn — แสดงว่าคู่แข่งเสนอดีลที่ดีกว่า แม้ลูกค้าจะพอใจกับบริการปัจจุบัน
+
+## การแสดงผลด้วย PCA และ t-SNE
+
+Notebook 1 ยังสร้าง Visualization ด้วย PCA (2D) และ t-SNE เพื่อยืนยันว่ากลุ่ม K-Means มีความแยกตัวที่ดีในพื้นที่ Feature
+
+## Output ของ Notebook 1
+
+- DataFrame ที่มีคอลัมน์ `RFM_Cluster` เพิ่มเข้ามา
+- ภาพ RFM Dashboard ที่บันทึกใน `outputs/figures/rfm_dashboard.png`
+- ข้อมูลที่ทำความสะอาดแล้ว (ค่าหายไปถูกเติมด้วย Median)
+- Feature ที่สะอาดพร้อมส่งต่อ Notebook 2 สำหรับ Model Training

@@ -1,30 +1,32 @@
-# Loyalty Program & Value-Risk Segmentation (Notebook 3)
+# โปรแกรมสมาชิกและการแบ่งกลุ่ม Value-Risk (Notebook 3)
 
-## Overview
+## ภาพรวม
 
-Notebook 3 takes `predictions.csv` from Notebook 2 and applies a 2-dimensional segmentation framework to categorize all 5,630 customers into four strategic quadrants. This allows the business to allocate retention resources efficiently based on both customer value and churn risk.
+Notebook 3 นำไฟล์ `predictions.csv` จาก Notebook 2 มาใช้กรอบ 2 มิติ เพื่อจัดกลุ่มลูกค้า 5,630 รายออกเป็น 4 กลุ่มเชิงกลยุทธ์ ช่วยให้ธุรกิจจัดสรรทรัพยากรการรักษาลูกค้าได้อย่างมีประสิทธิภาพตามทั้งมูลค่าและความเสี่ยง
 
-## Value-Risk Quadrant (Detailed)
+## ตาราง Value-Risk Quadrant (รายละเอียด)
 
-![Value-Risk Quadrant Detail](images/value_risk_quadrant_detail.png)
+![Value-Risk Quadrant](images/value_risk_quadrant_detail.png)
 
-## Value-Risk Scatter Plot
+## Scatter Plot Value-Risk
 
-![Value-Risk Matrix](images/value_risk_matrix.png)
+![Value-Risk Matrix Scatter](images/value_risk_matrix.png)
 
-Each point represents one customer, colored by actual churn label, positioned by their cashback amount and churn probability.
+แต่ละจุดคือลูกค้า 1 ราย จุดสีแดง = Churn จริง, จุดสีน้ำเงิน = ไม่ Churn แสดงตำแหน่งตาม CashbackAmount และ Churn_Prob
 
-## Segmentation Framework
+---
 
-### Thresholds
+## กรอบการแบ่งกลุ่ม
 
-| Parameter | Value | Rationale |
+### Threshold ที่ใช้
+
+| พารามิเตอร์ | ค่า | เหตุผล |
 |---|---|---|
-| `VALUE_MEDIAN` (CashbackAmount) | **163 Baht** | Median split — above median = "High Value" |
-| `CHURN_THRESHOLD` (Churn_Prob) | **0.35** | Business-defined risk threshold — above 35% = "High Risk" |
+| `VALUE_MEDIAN` (CashbackAmount) | **163 บาท** | Median split — สูงกว่า = มูลค่าสูง |
+| `CHURN_THRESHOLD` (Churn_Prob) | **0.35** | กำหนดโดยธุรกิจ — เกิน 35% = ความเสี่ยงสูง |
 
 ```python
-VALUE_MEDIAN = df['CashbackAmount'].median()   # = 163 Baht
+VALUE_MEDIAN = df['CashbackAmount'].median()   # = 163 บาท
 CHURN_THRESHOLD = 0.35
 
 df['Value_Segment'] = np.where(df['CashbackAmount'] >= VALUE_MEDIAN, 'High', 'Low')
@@ -32,83 +34,91 @@ df['Risk_Segment'] = np.where(df['Churn_Prob'] >= CHURN_THRESHOLD, 'High', 'Low'
 df['Quadrant'] = df['Value_Segment'] + '_' + df['Risk_Segment']
 ```
 
-## Quadrant Definitions & Counts
+### ผลการแบ่งกลุ่ม (ยืนยันจากข้อมูลจริง)
 
-| Quadrant | Label | Count | % of Total | Churn Risk | Value |
-|---|---|---|---|---|---|
-| High Value + Low Risk | **PROTECT** | 2,537 | 45.1% | < 35% | ≥ 163 Baht |
-| High Value + High Risk | **RESCUE** | 314 | 5.6% | ≥ 35% | ≥ 163 Baht |
-| Low Value + Low Risk | **MAINTAIN** | 2,114 | 37.6% | < 35% | < 163 Baht |
-| Low Value + High Risk | **LET GO** | 665 | 11.8% | ≥ 35% | < 163 Baht |
+| Quadrant | Label | จำนวน | % | เงื่อนไข |
+|---|---|---|---|---|
+| High Value + Low Risk | **PROTECT** | 2,537 | 45.1% | Cashback ≥ 163 + Churn < 35% |
+| High Value + High Risk | **RESCUE** | 314 | 5.6% | Cashback ≥ 163 + Churn ≥ 35% |
+| Low Value + Low Risk | **MAINTAIN** | 2,114 | 37.6% | Cashback < 163 + Churn < 35% |
+| Low Value + High Risk | **LET GO** | 665 | 11.8% | Cashback < 163 + Churn ≥ 35% |
 
-**Total**: 2,537 + 314 + 2,114 + 665 = **5,630** ✓
+**รวม**: 2,537 + 314 + 2,114 + 665 = **5,630** ✓
 
-## RESCUE Segment Profile
+---
 
-The 314 RESCUE customers are the primary targets for intensive retention:
+## โปรไฟล์กลุ่ม RESCUE
 
-| Metric | RESCUE Segment | All Customers |
+314 ราย คือเป้าหมายหลักสำหรับการรักษาอย่างเร่งด่วน:
+
+| ตัวชี้วัด | กลุ่ม RESCUE | ค่าเฉลี่ยทั้งหมด |
 |---|---|---|
-| Avg Churn Probability | **96.4%** | 16.84% |
-| Avg CashbackAmount | **202 Baht** | 163 Baht |
-| Avg Tenure | **5.58 months** | ~10 months |
-| % with Complaint | ~45% | ~17% |
+| Avg Churn Probability | **96.4%** | 17.9% |
+| Avg CashbackAmount | **202.3 บาท** | 163 บาท |
+| Avg Tenure | **5.58 เดือน** | ~10 เดือน |
+| % ที่ร้องเรียน | **~90%** | ~17% |
+| % ที่ Churn จริง | **99.4%** | 16.84% |
+| Avg SatisfactionScore | **~2.5/5** | ~3/5 |
 
-**Key finding**: RESCUE customers are disproportionately newer customers (short tenure) who have registered complaints. They generate above-average revenue but are leaving early in their lifecycle.
+**สิ่งที่ค้นพบ**: ลูกค้ากลุ่ม RESCUE มักเป็นลูกค้าใหม่ (Tenure สั้น) ที่มีการร้องเรียน แต่ยังสร้างรายได้เหนือค่าเฉลี่ย พวกเขากำลังจะออกไปในช่วงต้นของ Lifecycle
 
-## Strategy Per Quadrant
+---
 
-### PROTECT (2,537 customers — 45.1%)
-**Goal**: Maintain loyalty, prevent future drift into High Risk
+## กลยุทธ์แต่ละกลุ่ม
 
-- VIP tier upgrades and exclusive member benefits
-- Loyalty point multipliers on premium categories
-- Early access to new products and sales
-- Proactive satisfaction surveys
-- *Do NOT assume they are safe forever — monitor churn probability quarterly*
+### PROTECT (2,537 ราย — 45.1%)
+**เป้าหมาย**: รักษา Loyalty ป้องกันไม่ให้เลื่อนไปเสี่ยงสูง
 
-### RESCUE (314 customers — 5.6%)
-**Goal**: Immediate retention intervention before churn occurs
+- อัปเกรด VIP Tier และสิทธิพิเศษสำหรับสมาชิก
+- คะแนนสะสม Loyalty แบบทวีคูณในหมวดสินค้า Premium
+- Early Access สินค้าใหม่และโปรโมชั่น
+- Survey วัดความพึงพอใจเชิงรุก
 
-- Personal outreach from customer success team within 48 hours
-- Complaint resolution fast-track (if `Complain=1`)
-- Personalized retention offers (coupons, cashback bonuses)
-- ROI-optimized coupon targeting (→ Notebook 4)
-- Re-engagement campaigns for lapsed orderers
+> **ข้อควรระวัง**: อย่าสันนิษฐานว่าปลอดภัยตลอดไป — ติดตาม Churn Probability รายไตรมาส
 
-**Offer examples**:
-- "We miss you" cashback bonus (20–30% on next order)
-- Free shipping for next 3 orders
-- Personalized category discount based on `PreferedOrderCat`
+### RESCUE (314 ราย — 5.6%)
+**เป้าหมาย**: แทรกแซงการรักษาทันทีก่อนที่จะสายเกินไป
 
-### MAINTAIN (2,114 customers — 37.6%)
-**Goal**: Gradually increase value, prevent sliding into LET GO
+- ติดต่อส่วนตัวภายใน **48 ชั่วโมง**
+- Fast-Track การแก้ Complaint (สำหรับคนที่ `Complain=1`)
+- Offer ที่เฉพาะเจาะจง: คูปอง 20–30% + Cashback Bonus
+- ส่งคูปองอิง ROI Score (→ Notebook 4)
 
-- Standard loyalty program enrollment
-- Behavioral nudges to increase order frequency
-- Category recommendations to raise average order value
-- Automated email/app engagement campaigns
+**ตัวอย่าง Offer**:
+- "เราคิดถึงคุณ" — Cashback 25% สำหรับคำสั่งซื้อถัดไป
+- ส่งฟรีสำหรับ 3 คำสั่งซื้อถัดไป
+- ส่วนลดส่วนตัวตาม `PreferedOrderCat`
 
-### LET GO (665 customers — 11.8%)
-**Goal**: Minimize spend, accept natural attrition
+### MAINTAIN (2,114 ราย — 37.6%)
+**เป้าหมาย**: ค่อย ๆ เพิ่มมูลค่า ป้องกันไม่ให้ตกลงไป LET GO
 
-- No coupon investment in this segment
-- Remove from intensive marketing campaigns
-- If they re-engage organically, welcome back
-- Cost savings: eliminating 665 unnecessary coupons per cycle
+- เข้าร่วมโปรแกรม Loyalty มาตรฐาน
+- Nudge ให้เพิ่มความถี่การสั่งซื้อ
+- แนะนำสินค้าเพื่อเพิ่ม Average Order Value
+- แคมเปญ Email/App อัตโนมัติ
 
-## Cost-Benefit Analysis
+### LET GO (665 ราย — 11.8%)
+**เป้าหมาย**: ลดการลงทุน ยอมรับการสูญเสียตามธรรมชาติ
 
-| Action | Without Segmentation | With Segmentation |
+- ไม่ส่งคูปองให้กลุ่มนี้
+- ถอดออกจากแคมเปญการตลาดที่เข้มข้น
+- ถ้ากลับมาใช้งานเอง → ต้อนรับกลับ
+- ประหยัดได้: ตัดคูปองที่ไม่จำเป็น 665 ฉบับต่อรอบ
+
+---
+
+## การวิเคราะห์ Cost-Benefit
+
+| สิ่งที่ทำ | ไม่มีการแบ่งกลุ่ม | มีการแบ่งกลุ่ม |
 |---|---|---|
-| Coupons distributed | 5,630 (all customers) | 310–314 (RESCUE only) |
-| Wasted on non-churners | ~4,682 coupons | ~0–4 coupons |
-| Efficiency | 16.84% relevant | ~100% relevant |
-| Cost savings | Baseline | ~94.5% reduction |
+| คูปองที่แจก | 5,630 ฉบับ | 310–314 ฉบับ |
+| สูญเปล่า (ไปคนไม่ Churn) | ~4,682 ฉบับ | ~0 ฉบับ |
+| ประสิทธิภาพ | 16.84% ตรงเป้า | ~100% ตรงเป้า |
+| ประหยัดได้ | Baseline | **~94.5%** |
 
 ## Output
 
-`rescue_priority_list.csv` — 314 rows sorted by `Churn_Prob` descending:
-- All original features + `Churn_Prob` + `Quadrant` label
-- Ready for Notebook 4 coupon optimization
-- Also usable directly for manual outreach campaigns
+`outputs/csv/rescue_priority_list.csv` — 314 แถว เรียงตาม `Churn_Prob` จากสูงไปต่ำ:
+- Feature ดั้งเดิมทั้งหมด + `Churn_Prob` + Label Quadrant
+- พร้อมส่งต่อ Notebook 4 เพื่อ Optimize การส่งคูปอง
+- ใช้ได้โดยตรงสำหรับทีม Customer Success ติดต่อส่วนตัว

@@ -1,106 +1,110 @@
-# Dataset Guide: E-Commerce Customer Churn
+# คู่มือ Dataset: E-Commerce Customer Churn
 
-## Dataset Overview
+## ภาพรวม Dataset
 
-![Dataset Overview](images/dataset_overview.png)
+![ภาพรวม Dataset](images/dataset_overview.png)
 
-- **Total customers**: 5,630
-- **Features**: 20 (after encoding)
-- **Target variable**: `Churn` (0 = Non-Churn, 1 = Churn)
-- **Class distribution**: 83.16% Non-Churn (4,682) / 16.84% Churn (948)
+| รายการ | ค่า |
+|---|---|
+| จำนวนลูกค้าทั้งหมด | 5,630 ราย |
+| จำนวน Feature | 20 คอลัมน์ |
+| ตัวแปรเป้าหมาย | `Churn` (0 = ไม่ Churn, 1 = Churn) |
+| สัดส่วน Churn | 83.16% ไม่ Churn / 16.84% Churn |
+| แหล่งข้อมูล | `data/Ecommerce Customer Churn.csv` |
 
-## Feature Reference Table
+## ตารางคำอธิบาย Feature ทั้ง 20 คอลัมน์
 
-| # | Column | Type | Description | Missing % |
+| # | คอลัมน์ | ประเภท | คำอธิบาย | ค่าหายไป |
 |---|---|---|---|---|
-| 1 | CustomerID | ID | Unique customer identifier | 0% |
-| 2 | Churn | Binary Target | 1 = churned, 0 = retained | 0% |
-| 3 | Tenure | Numerical | Months as customer | **4.46%** |
-| 4 | PreferredLoginDevice | Categorical | Mobile Phone / Computer / Tablet | 0% |
-| 5 | CityTier | Ordinal | City tier 1/2/3 | 0% |
-| 6 | WarehouseToHome | Numerical | Distance (km) to warehouse | **5.45%** |
-| 7 | PreferredPaymentMode | Categorical | Credit Card / Debit Card / UPI / COD / E-wallet | 0% |
-| 8 | Gender | Binary | Male / Female | 0% |
-| 9 | HourSpendOnApp | Numerical | Hours per month on app | **4.96%** |
-| 10 | NumberOfDeviceRegistered | Discrete | Devices registered (1–6) | 0% |
-| 11 | PreferedOrderCat | Categorical | Preferred product category | 0% |
-| 12 | SatisfactionScore | Ordinal | Customer satisfaction 1–5 | 0% |
-| 13 | MaritalStatus | Categorical | Single / Married / Divorced | 0% |
-| 14 | NumberOfAddress | Discrete | Saved delivery addresses | 0% |
-| 15 | Complain | Binary | 1 = filed complaint last month | 0% |
-| 16 | OrderAmountHikeFromLastYear | Numerical | % increase in order amount YoY | **4.78%** |
-| 17 | CouponUsed | Discrete | Coupons used last month | **5.09%** |
-| 18 | OrderCount | Discrete | Orders placed last month | **4.96%** |
-| 19 | DaySinceLastOrder | Numerical | Days since last order | **5.27%** |
-| 20 | CashbackAmount | Numerical | Average cashback (Baht/month) | 0% |
+| 1 | CustomerID | ID | รหัสลูกค้าเฉพาะ | 0% |
+| 2 | Churn | Target (Binary) | 1 = Churn, 0 = ไม่ Churn | 0% |
+| 3 | Tenure | ตัวเลข | จำนวนเดือนที่เป็นลูกค้า | **4.69%** |
+| 4 | PreferredLoginDevice | หมวดหมู่ | อุปกรณ์ที่ใช้ Login บ่อยสุด (Mobile/Computer/Tablet) | 0% |
+| 5 | CityTier | Ordinal | ระดับเมือง 1/2/3 | 0% |
+| 6 | WarehouseToHome | ตัวเลข | ระยะทาง (กม.) จากคลังสินค้าถึงบ้าน | **4.46%** |
+| 7 | PreferredPaymentMode | หมวดหมู่ | วิธีชำระเงินที่ชอบ (Credit/Debit/UPI/COD/E-wallet) | 0% |
+| 8 | Gender | Binary | เพศ (Male/Female) | 0% |
+| 9 | HourSpendOnApp | ตัวเลข | ชั่วโมงที่ใช้งาน App ต่อเดือน | **4.53%** |
+| 10 | NumberOfDeviceRegistered | ตัวนับ | จำนวนอุปกรณ์ที่ลงทะเบียน (1–6) | 0% |
+| 11 | PreferedOrderCat | หมวดหมู่ | หมวดสินค้าที่ซื้อบ่อยสุด | 0% |
+| 12 | SatisfactionScore | Ordinal | คะแนนความพึงพอใจ 1–5 | 0% |
+| 13 | MaritalStatus | หมวดหมู่ | สถานภาพสมรส (Single/Married/Divorced) | 0% |
+| 14 | NumberOfAddress | ตัวนับ | จำนวนที่อยู่จัดส่งที่บันทึกไว้ | 0% |
+| 15 | Complain | Binary | 1 = เคยร้องเรียนเดือนที่ผ่านมา | 0% |
+| 16 | OrderAmountHikeFromlastYear | ตัวเลข | % การเพิ่มขึ้นของยอดสั่งซื้อเทียบปีที่แล้ว | **4.71%** |
+| 17 | CouponUsed | ตัวนับ | จำนวนคูปองที่ใช้เดือนที่ผ่านมา | **4.55%** |
+| 18 | OrderCount | ตัวนับ | จำนวนคำสั่งซื้อเดือนที่ผ่านมา | **4.58%** |
+| 19 | DaySinceLastOrder | ตัวเลข | จำนวนวันนับจากสั่งซื้อครั้งล่าสุด | **5.45%** |
+| 20 | CashbackAmount | ตัวเลข | จำนวนเงิน Cashback เฉลี่ย (บาท/เดือน) | 0% |
 
-## Missing Values Strategy
+## การจัดการค่าที่หายไป
 
-7 columns have missing data ranging from **4.46% to 5.45%**:
+7 คอลัมน์มีค่าหายไป โดยเรียงจากมากไปน้อย:
 
 ```
-Tenure                         4.46%  →  Median Imputation
-WarehouseToHome                5.45%  →  Median Imputation
-HourSpendOnApp                 4.96%  →  Median Imputation
-OrderAmountHikeFromLastYear    4.78%  →  Median Imputation
-CouponUsed                     5.09%  →  Median Imputation
-OrderCount                     4.96%  →  Median Imputation
-DaySinceLastOrder              5.27%  →  Median Imputation
+DaySinceLastOrder              5.45%  →  เติมด้วย Median
+OrderAmountHikeFromlastYear    4.71%  →  เติมด้วย Median
+Tenure                         4.69%  →  เติมด้วย Median
+OrderCount                     4.58%  →  เติมด้วย Median
+CouponUsed                     4.55%  →  เติมด้วย Median
+HourSpendOnApp                 4.53%  →  เติมด้วย Median
+WarehouseToHome                4.46%  →  เติมด้วย Median
 ```
 
-**Rationale**: Median imputation was chosen over mean because numerical features may be skewed (e.g., DaySinceLastOrder, WarehouseToHome). Median is robust to outliers and preserves the central tendency without introducing bias.
+**เหตุผลที่เลือก Median**: ตัวแปรตัวเลขเหล่านี้มีการกระจายแบบเบ้ (Skewed) จึงใช้ Median แทน Mean เพื่อไม่ให้ค่าผิดปกติ (Outlier) บิดเบือนการเติมค่า
 
-## Class Imbalance
+## ความไม่สมดุลของคลาส (Class Imbalance)
 
-| Class | Count | Percentage |
+| คลาส | จำนวน | ร้อยละ |
 |---|---|---|
-| Non-Churn (0) | 4,682 | 83.16% |
+| ไม่ Churn (0) | 4,682 | 83.16% |
 | Churn (1) | 948 | 16.84% |
+| อัตราส่วน | 4.93 : 1 | — |
 
-The ~5:1 imbalance is handled by:
-- Using `StratifiedKFold` (CV=5) to maintain class proportions across folds
-- Evaluating with F1-Score and ROC-AUC instead of raw accuracy
-- Analyzing Precision-Recall curve for threshold selection
+วิธีรับมือกับ Class Imbalance:
+- ใช้ `StratifiedKFold` (CV=5) รักษาสัดส่วน 83:17 ในทุก Fold
+- ตั้งค่า `class_weight='balanced'` ใน Random Forest และ Extra Trees
+- ประเมินด้วย F1 Score และ ROC-AUC แทนที่จะใช้ Accuracy อย่างเดียว
 
-## Train/Test Split
+## การแบ่ง Train/Test
 
 ```python
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
-# Result: 4,504 training rows / 1,126 test rows
+# ผลลัพธ์: 4,504 training / 1,126 test
 ```
 
-## Output Files Generated
+หลัง One-Hot Encoding มีทั้งหมด **29 Feature** (จาก 20 คอลัมน์ดิบ)
 
-### `predictions.csv` (5,630 rows × 16 columns)
-Contains original features + model predictions for all customers:
+## ไฟล์ Output ที่ระบบสร้างออกมา
 
-| Column | Description |
+### `outputs/csv/predictions.csv` (5,630 แถว × 16 คอลัมน์)
+
+| คอลัมน์สำคัญ | คำอธิบาย |
 |---|---|
-| CustomerID | Original ID |
-| Churn | Actual label |
-| Churn_Prob | Stacking model's churn probability (0.0–1.0) |
-| Churn_Pred | Binary prediction at 0.5 threshold |
-| CashbackAmount | Used for Value-Risk segmentation |
-| ... | Other original features |
+| `CustomerID` | รหัสลูกค้า |
+| `Churn` | ค่าจริง (Actual Label) |
+| `Churn_Prob` | ความน่าจะเป็น Churn จากโมเดล (0.0–1.0) |
+| `Churn_Pred` | การทำนายแบบ Binary (threshold = 0.5) |
+| `CashbackAmount` | ใช้สำหรับแบ่งกลุ่ม Value-Risk |
 
-### `rescue_priority_list.csv` (314 rows)
-RESCUE segment customers sorted by churn probability:
-- High Churn Risk (≥ 35%) AND High Value (CashbackAmount ≥ 163 Baht)
-- Sorted descending by `Churn_Prob`
-- Avg churn prob: **96.4%**, Avg cashback: **202 Baht**, Avg tenure: **5.58 months**
+### `outputs/csv/rescue_priority_list.csv` (314 แถว)
+ลูกค้ากลุ่ม RESCUE เรียงตาม `Churn_Prob` จากสูงไปต่ำ:
+- Churn Risk ≥ 35% และ CashbackAmount ≥ 163 บาท
+- Avg Churn Prob: **96.4%** | Avg Cashback: **202.3 บาท** | Avg Tenure: **5.58 เดือน**
 
-### `coupon_target_list.csv` (310 rows)
-Final coupon recipients after ROI scoring + threshold filtering:
-- Subset of RESCUE customers with `Churn_Prob ≥ 0.777`
-- Includes `ROI_Score` column (0–100 normalized)
-- Precision: **100%** (all are actual churners)
+### `outputs/csv/coupon_target_list.csv` (310 แถว)
+ผู้รับคูปองสุดท้ายหลังกรองด้วย ROI Score + Threshold = 0.777:
+- คอลัมน์: `Coupon_Priority`, `CustomerID`, `Churn_Prob`, `ROI_Score`, `CashbackAmount`, `Tenure`, `Complain`, `SatisfactionScore`, `Value_Risk`, `Actual_Churn`
+- Precision: **100%** (ทุกคนเป็น Churn จริง)
 
-## Key Insights from EDA
+## สิ่งที่ค้นพบจาก EDA
 
-1. **Tenure is the strongest churn predictor**: Customers with < 3 months tenure churn at 3× the average rate.
-2. **Complaints drive churn**: Customers who filed a complaint have ~40% churn rate vs 14% for non-complainers.
-3. **CashbackAmount is bimodal**: Clear separation between low-value (< 163) and high-value (≥ 163) segments.
-4. **DaySinceLastOrder**: Churners tend to have longer gaps since last order (more disengaged).
-5. **SatisfactionScore paradox**: Some high-satisfaction customers still churn — indicating loyalty fragility.
+| ข้อค้นพบ | ตัวเลข |
+|---|---|
+| ลูกค้าที่ร้องเรียน vs ไม่ร้องเรียน | Churn 40.5% vs 13.4% |
+| Tenure 0–3 เดือน | Churn rate ~59.3% (สูงสุด) |
+| มูลค่าสหสัมพันธ์สูงสุด (Negative) | Tenure (−0.55), CashbackAmount (−0.48) |
+| มูลค่าสหสัมพันธ์สูงสุด (Positive) | Complain (0.45), DaySinceLastOrder (0.42) |
+| กลุ่มที่เสี่ยงที่สุด | Mobile Phone users + Complained = highest risk |
