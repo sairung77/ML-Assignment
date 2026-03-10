@@ -1,3 +1,46 @@
+# ข้อมูล (Data)
+data/
 notebooks/data
+*.csv
+*.xlsx
+*.parquet
+
+# โมเดลที่ train แล้ว
+*.pth
+*.pt
+*.pkl
+*.joblib
+*.h5
+*.model
 notebooks/cifar_net.pth
+
+# Virtual Environment
+.venv/
+venv/
+env/
+.env
+
+# Jupyter
 .ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# IDE / Editor
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+logs/
