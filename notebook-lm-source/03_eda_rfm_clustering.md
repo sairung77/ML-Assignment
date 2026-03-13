@@ -122,12 +122,14 @@ Notebook 1 ทำการวิเคราะห์เชิงสำรวจ
 
 **สิ่งที่เห็นในกราฟ** (6 subplots):
 
-1. **Churn Rate ตาม Complain**: ร้องเรียน = 40.5% Churn vs ไม่ร้องเรียน = 13.4%
-2. **Churn Rate ตาม Tenure Group**: 0–3 เดือน = อัตราสูงสุด ลดลงตาม Tenure
-3. **Churn Rate ตาม City Tier**: Tier 1 > Tier 2 > Tier 3
-4. **Churn Rate ตาม SatisfactionScore**: ไม่ monotonic — Score 1 สูง แต่ Score 5 ก็ไม่ต่ำมาก
-5. **Heatmap Tenure × Complaint**: Combo ของ Tenure สั้น + ร้องเรียน = Churn Rate สูงสุด
-6. **Churn Rate ตาม MaritalStatus**: Single > Divorced > Married
+1. **Churn Rate by Complain**: ร้องเรียน = 40.5% Churn vs ไม่ร้องเรียน = 13.4%
+2. **Churn Rate by Tenure Group**: 0–3 เดือน = อัตราสูงสุด ลดลงตาม Tenure
+3. **Churn Rate by City Tier**: Tier 1 > Tier 2 > Tier 3
+4. **Churn Rate by SatisfactionScore (1=Lowest, 5=Highest)**: ไม่ monotonic — Score 1 สูง แต่ Score 5 ก็ไม่ต่ำมาก
+5. **Heatmap Tenure x Complain**: Combo ของ Tenure สั้น + ร้องเรียน = Churn Rate สูงสุด
+6. **Churn Rate by MaritalStatus**: Single > Divorced > Married
+
+> **หมายเหตุ**: ชื่อแกนและ label ในกราฟใช้ภาษาอังกฤษทั้งหมด เนื่องจาก font Arial ที่ matplotlib ใช้เป็นค่า default บน macOS ไม่รองรับ Unicode ภาษาไทย (Thai glyph missing warning)
 
 ### กราฟที่ 9 — Interaction Effects (3 Heatmaps)
 
@@ -135,9 +137,9 @@ Notebook 1 ทำการวิเคราะห์เชิงสำรวจ
 
 **สิ่งที่เห็นในกราฟ**: 3 Heatmaps แสดงผลกระทบเชิงปฏิสัมพันธ์ระหว่างคู่ Feature:
 
-1. **Tenure × SatisfactionScore → Churn%**: Tenure สั้น + Score ต่ำ = Churn สูงสุด แต่ Tenure สั้น + Score สูง ก็ยังสูง
-2. **DaySinceLastOrder × Complain → Churn%**: ไม่สั่งซื้อนาน + ร้องเรียน = เกือบ 100% Churn
-3. **หมวดสินค้า × Complain → Churn%**: ทุกหมวดสินค้า ถ้าร้องเรียน → Churn พุ่งสูง
+1. **Tenure x SatisfactionScore -> Churn%**: Tenure สั้น + Score ต่ำ = Churn สูงสุด แต่ Tenure สั้น + Score สูง ก็ยังสูง
+2. **DaySinceLastOrder x Complain -> Churn%**: ไม่สั่งซื้อนาน + ร้องเรียน = เกือบ 100% Churn
+3. **Product Category x Complain -> Churn%**: ทุกหมวดสินค้า ถ้าร้องเรียน → Churn พุ่งสูง
 
 ---
 
