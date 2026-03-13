@@ -166,18 +166,14 @@ Notebook 1 ทำการวิเคราะห์เชิงสำรวจ
 
 ## ส่วนที่ 8: RFM Segmentation
 
-### กราฟที่ 12 — RFM Segmentation Dashboard (6 subplots)
+### กราฟที่ 12 — RFM Treemap (squarify, 11 Segments)
 
 ![RFM Dashboard](images/eda/eda_12_rfm_dashboard.png)
 
-**สิ่งที่เห็นในกราฟ** (6 subplots):
-
-1. **จำนวนลูกค้าต่อกลุ่ม**: Lost/Hibernating และ Need Attention มีจำนวนมาก
-2. **Churn Rate ต่อกลุ่ม**: At Risk และ Lost/Hibernating มี Churn Rate สูงสุด
-3. **RFM Score Distribution**: Champions มีคะแนนสูง (13–15), Lost/Hibernating ต่ำ
-4. **R vs F Scatter**: Champions อยู่มุมบนขวา (Recency สูง + Frequency สูง)
-5. **F vs M Scatter**: แสดงความสัมพันธ์ Frequency กับ Monetary ต่อกลุ่ม
-6. **R/F/M Score เฉลี่ย**: Champions สูงทุกมิติ, Lost มีทุกมิติต่ำ
+**สิ่งที่เห็นในกราฟ**:
+- **squarify Treemap**: กล่องแต่ละกล่องคือ 1 Segment ขนาดกล่อง ~ จำนวนลูกค้า
+- แต่ละกล่องแสดง: ชื่อ Segment, จำนวนลูกค้า (n), และ Churn Rate (%)
+- สีแต่ละ Segment แตกต่างกัน เช่น Champions (กรมท่าเข้ม), Lost (แดง), New Customers (ฟ้า)
 
 **กรอบ RFM ที่ใช้**:
 
@@ -186,18 +182,47 @@ Notebook 1 ทำการวิเคราะห์เชิงสำรวจ
 | R (Recency) | DaySinceLastOrder | น้อย = ล่าสุด = Score สูง |
 | F (Frequency) | OrderCount | มาก = Score สูง |
 | M (Monetary) | CashbackAmount | มาก = Score สูง |
+| FM (composite) | (F + M) / 2 แปลงเป็น int (1–5) | แกน Y ของ Matrix |
 
-**กลุ่ม RFM และ Logic**:
+**Framework มาตรฐาน 11 Segments — SEG_MATRIX[FM-1][R-1]**:
 
-| Score | Recency | Label |
+ใช้ Lookup Table 5×5 (`np.array`) แทน if/elif Chain:
+
+| FM \ R | R=1 | R=2 | R=3 | R=4 | R=5 |
+|---|---|---|---|---|---|
+| **FM=5** | Can't Lose | Can't Lose | Loyal Customers | Champions | Champions |
+| **FM=4** | Can't Lose | Sleepers | Need Attention | Loyal Customers | Champions |
+| **FM=3** | Can't Lose | Sleepers | Need Attention | Promising | Loyal Customers |
+| **FM=2** | Lost | Cold Leads | Warm Leads | Promising | New Customers |
+| **FM=1** | Lost | Cold Leads | Warm Leads | Abandoned | New Customers |
+
+**11 Segments และความหมาย**:
+
+| Segment | ลักษณะ | Churn Risk |
 |---|---|---|
-| ≥ 13 | — | Champions |
-| ≥ 10 | — | Loyal Customers |
-| ≥ 7 | R ≥ 4 | Potential Loyalists |
-| < 7 | R ≥ 4 | New Customers |
-| ≥ 10 | R ≤ 2 | At Risk |
-| ≥ 7 | R ≤ 2 | Need Attention |
-| — | — | Lost / Hibernating |
+| Champions | R สูง + FM สูง — ลูกค้าดีที่สุด | ต่ำมาก |
+| Loyal Customers | FM สูง Recency ดี | ต่ำ |
+| Can't Lose | FM สูงมาก แต่ Recency ต่ำ — เคยเป็นลูกค้าดี | สูง |
+| Promising | FM ปานกลาง Recency ดี | ปานกลาง |
+| New Customers | R สูง FM ต่ำ — เพิ่งซื้อครั้งแรก | ปานกลาง |
+| Need Attention | FM ปานกลาง R ต่ำ | สูง |
+| Sleepers | R ต่ำ FM ปานกลาง — เริ่มห่าง | สูง |
+| Abandoned | R สูง FM ต่ำมาก | สูง |
+| Warm Leads | R ปานกลาง FM ต่ำ | ปานกลาง |
+| Cold Leads | R ต่ำ FM ต่ำ | สูงมาก |
+| Lost | R ต่ำสุด FM ต่ำสุด — หายไปแล้ว | สูงสุด |
+
+### กราฟที่ 12b — Bar Chart: จำนวนลูกค้าต่อ RFM Segment
+
+![RFM Bar Chart](images/eda/rfm_barchart.png)
+
+**สิ่งที่เห็นในกราฟ**: Bar Chart เรียงลำดับ Segment จากจำนวนลูกค้ามากไปน้อย สีของแต่ละแท่งตรงกับสีใน Treemap
+
+- **ตัวเลขบนแท่ง**: จำนวนลูกค้า (n)
+- **ตัวเลขกลางแท่ง**: Churn Rate (%) ของแต่ละ Segment
+- บันทึกเป็น `outputs/figures/rfm_barchart.png`
+
+**Insight**: เห็นภาพรวมการกระจายลูกค้าได้ง่ายกว่า Treemap — Segment ไหนมีคนมากที่สุดและ Churn Risk อยู่ในระดับใด
 
 ---
 
@@ -263,7 +288,7 @@ Tenure, CouponUsed, Complain, SatisfactionScore
 | Complain | ร้องเรียน → Churn 40.5% (3× กว่าปกติ) | Complaint Resolution Fast-Track |
 | Tenure × Complain | Tenure สั้น + ร้องเรียน = เกือบ 100% Churn | กลุ่ม Priority สูงสุด |
 | CashbackAmount | Median = 163 บาท ใช้แบ่ง High/Low Value | Threshold ใน Notebook 3 |
-| RFM | 7 กลุ่ม จาก Champions → Lost/Hibernating | กลยุทธ์ต่างกันต่อกลุ่ม |
+| RFM | 11 กลุ่ม (SEG_MATRIX 5×5) จาก Champions → Lost | กลยุทธ์ต่างกันต่อกลุ่ม visualize ด้วย squarify Treemap |
 | K-Means k=4 | 4 กลุ่มแยกตาม Loyalty และ Churn Risk | ใช้เป็นพื้นฐาน Loyalty Program |
 | Product Category | Mobile Phone users = Churn Risk สูง | ส่วนลดเฉพาะหมวดเพื่อ Rescue |
 
