@@ -214,7 +214,7 @@ Notebook 1 ทำการวิเคราะห์เชิงสำรวจ
 
 ### กราฟที่ 12b — Bar Chart: จำนวนลูกค้าต่อ RFM Segment
 
-![RFM Bar Chart](images/eda/rfm_barchart.png)
+![RFM Bar Chart](images/eda/eda_12b_rfm_barchart.png)
 
 **สิ่งที่เห็นในกราฟ**: Bar Chart เรียงลำดับ Segment จากจำนวนลูกค้ามากไปน้อย สีของแต่ละแท่งตรงกับสีใน Treemap
 
